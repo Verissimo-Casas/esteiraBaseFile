@@ -1,0 +1,1 @@
+{"fecha": "2023-06-24", "hora": "23:13:07", "fps": 428.0940367545283, "objetos_por_color": {"azul": 0, "rojo": 43159, "verde": 0, "amarillo": 0}, "acumulado_total": 43159, "objetos_entre_lineas": 0}

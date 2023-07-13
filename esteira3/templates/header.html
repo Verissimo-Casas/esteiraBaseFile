@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../static/images/favicon-getter.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+
+<body>
+    <!--Header-->
+    <header>
+        <div class="header">
+            <div>
+                <a href="https://getter.ai/">
+                    <img id="logo-getter" src="../static/images//logo-getter-horizontal.png" alt="logo Getter">
+                </a>
+            </div>
+            <!-- <div>
+                <a href="https://www.padrereginaldomanzotti.org.br/">
+                    <img id="logo-evangelizar" src="../static/images/logo-evangelizar.png" alt="logo Evangelizar">
+                </a>
+            </div> -->
+        </div>
+    </header>
+    {% block content %}
+    {% endblock %}
+
+    <script type="text/javascript" src="{{url_for('static', filename='script.js' )}}"></script>
+</body>
+
+</html>

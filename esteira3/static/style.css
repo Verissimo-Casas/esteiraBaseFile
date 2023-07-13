@@ -1,0 +1,266 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400&family=Roboto:wght@100;300;400;700&display=swap');
+
+/* ###################################################### Reset CSS ###############################################################*/
+* {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  /* box-sizing: border-box; */
+  text-decoration: none;
+}
+
+/* ###################################################### Declaração de variáveis ###############################################################*/
+:root {
+  --bg-color-primary: #2A5872;
+  --bg-color-secondary: #357599;
+  --color-green-getter: #5eba98;
+  --color-white-getter: #eaf1f4;
+  --color-gray-getter: #3d414d;
+  --color-light: #fff;
+  --color-black: #000;
+  --color-gray: #ccd1d9;
+  --color-blue-light: #5c8ba9;
+  --color-box-shadow: #374550;
+}
+
+/* ###################################################### Header ###############################################################*/
+.header {
+  margin: 2vh;
+  border-radius: 0.5rem;
+  display: flex;
+  background: linear-gradient(to right, var(--bg-color-primary), var(--bg-color-secondary));
+  height: 10vh;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 0 1rem var(--color-box-shadow);
+}
+
+#logo-getter {
+  margin-left: 0.5vw;
+  height: 18vh;
+}
+
+/* ###################################################### Main ###############################################################*/
+#main {
+  margin: 0 0 3rem;
+
+}
+
+
+.streaming-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+#streaming {
+  /* padding: 0.5rem; */
+  background-color: var(--color-gray);
+  box-shadow: 0 0 1rem var(--color-gray-getter);
+  border-radius: 1vh;
+  margin: 1rem;
+  cursor: pointer;
+}
+
+#streaming:hover {
+  transform: scale(1.05);
+  transition: all ease 500ms;
+  background-color: var(--color-blue-light);
+  box-shadow: 0 0 1rem var(--color-gray);
+}
+
+.overlay {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(52, 52, 52, 0.7);
+  z-index: 2;
+  cursor: pointer;
+}
+
+#logo-getter {
+  margin-left: 0.5vw;
+}
+
+/* ###################################################### Responsividade ###############################################################*/
+@media screen and (max-width: 480px) {
+  #logo-getter {
+    height: 12vh;
+  }
+
+  #main {
+    margin: 0 0 1.5rem;
+  }
+
+  #streaming {
+    width: 80vw;
+    margin: 1rem;
+  }
+
+}
+
+@media screen and (min-width: 480px) and (max-width: 768px) {
+  #logo-getter {
+    height: 15vh;
+  }
+
+  #main {
+    margin: 0 0 1rem;
+  }
+
+  #streaming {
+    width: 150vw;
+    margin: 0.5rem;
+  }
+
+  .footer {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 6rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .logo-getter-footer {
+    height: 9vh;
+  }
+
+  .social-icon {
+    padding: 0 1rem;
+  }
+
+  .modal {
+    width: 100%;
+    padding: 0 2rem 2rem;
+    margin-top: 10rem;
+  }
+
+  .modal-video {
+    width: 90vw;
+  }
+}
+
+
+/* @media screen and (min-width: 769px) and (max-width: 1024px) {
+  #main {
+    margin: 0 0 1rem;
+  }
+
+  #streaming {
+    width: 40vw;
+    margin: 1rem;
+  }
+
+  .footer {
+    display: flex;
+    padding: 0 0.5rem;
+    text-align: center;
+    justify-content: space-between;
+  }
+
+  .social-icon {
+    padding: 0 0.2rem;
+  }
+
+  .modal {
+    width: 95%;
+    margin: auto;
+    padding: 0 3rem 3rem;
+    margin-top: 7rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-video {
+    width: 80vw;
+  }
+} */
+
+@media screen and (min-width: 1025px) {
+  #main {
+    margin: 0 0 2rem;
+  }
+
+  #streaming {
+    width: auto;
+    height: 45vw;
+    margin: 1rem;
+  }
+
+  .footer {
+    display: flex;
+    padding: 0 0.5rem;
+    text-align: center;
+    justify-content: space-between;
+  }
+
+  .social-icon {
+    padding: 0 0.2rem;
+  }
+
+  .modal {
+    width: 70%;
+    margin: auto;
+    padding: 1rem 3rem 3rem;
+    margin-top: 5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-video {
+    width: 60vw;
+  }
+}
+
+/* Aplicar a estrutura abaixo para grandes telas, como TV de +40 polegadas 
+
+@media screen and (min-width: 1025px){
+  .header {
+    margin: 5vh 5vh 2vh;
+  }
+
+  #main {
+    margin: 0 2rem 2rem;
+  }
+
+  #streaming {
+    width: 25vw;
+    margin: 1rem;
+  }
+
+  .footer {
+    display: flex;
+    padding: 0 0.5rem;
+    text-align: center;
+    justify-content: space-between;
+  }
+
+  .social-icon {
+    padding: 0 0.2rem;
+  }
+  
+  .modal {
+    width: 70%;
+    margin: auto;
+    padding: 0 3rem 3rem;
+    margin-top: 5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-video {
+    width: 60vw;
+  }
+
+  .close {
+    font-size: 14pt;
+  }
+} */
