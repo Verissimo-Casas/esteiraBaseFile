@@ -1,21 +1,33 @@
 import cv2
 import numpy as np
 
+def find_contours(mask):
+    return cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+
+def calculate_centroid(contour):
+    moments = cv2.moments(contour)
+    if moments["m00"] == 0:
+        moments["m00"] = 1
+    x = int(moments["m10"] / moments["m00"])
+    y = int(moments["m01"] / moments["m00"])
+    return x, y
+
+def draw_circle_and_text(frame, x, y):
+    cv2.circle(frame, (x, y), 7, (0, 255, 0), -1)
+    cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), font, 0.75, (0, 255, 0), 1, cv2.LINE_AA)
+
+def draw_contour(frame, contour, color):
+    nuevo_contorno = cv2.convexHull(contour)
+    cv2.drawContours(frame, [nuevo_contorno], 0, color, 3)
+
 def dibujar(mask, color):
-  contornos,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-  for c in contornos:
-    area = cv2.contourArea(c)
-    if area > 3000:
-      M = cv2.moments(c)
-      if (M["m00"]==0): M["m00"]=1
-      x = int(M["m10"]/M["m00"])
-      y = int(M['m01']/M['m00'])
-      nuevoContorno = cv2.convexHull(c)
-      cv2.circle(frame,(x,y),7,(0,255,0),-1)
-      cv2.putText(frame,'{},{}'.format(x,y),(x+10,y), font, 0.75,(0,255,0),1,cv2.LINE_AA)
-      cv2.drawContours(frame, [nuevoContorno], 0, color, 3)
-
-
+    contornos = find_contours(mask)
+    for c in contornos:
+        area = cv2.contourArea(c)
+        if area > 3000:
+            x, y = calculate_centroid(c)
+            draw_circle_and_text(frame, x, y)
+            draw_contour(frame, c, color)
 
 
 
