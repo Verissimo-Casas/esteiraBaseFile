@@ -76,7 +76,7 @@ def index():
 
 
 def generate_frames():
-    cam = 2            # Camera
+    cam = 0            # Camera
     width = 1080         # Ancho
     height = 680        # Alto
     fps = 60            # FPS 25/30/50/60

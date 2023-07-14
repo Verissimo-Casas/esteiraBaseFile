@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Set the camera index and initialize the camera
-CAMERA_INDEX = 2
+CAMERA_INDEX = 0
 cap = cv2.VideoCapture(CAMERA_INDEX)
 
 # Set the frame width and height to 1280 and 720 pixels, respectively
@@ -41,6 +41,7 @@ while True:
 
     # Extract the BGR color values of the pixel located at the center of the frame
     center_pixel_bgr = frame[center_y, center_x]
+    print(center_pixel_bgr)
 
     # Unpack the BGR intensities of the center pixel into separate variables
     blue_intensity, green_intensity, red_intensity = int(center_pixel_bgr[0]), int(center_pixel_bgr[1]), int(center_pixel_bgr[2])
@@ -54,9 +55,11 @@ while True:
 
     # Display the processed frame in a window
     cv2.imshow('frame', frame)
-
     # Exit the loop if the 'q' key is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+
+    if centrid_x == 210:
+        print
+    if cv2.waitKey(70) & 0xFF == ord('q'):
         break
 
 # Release the camera resources and close all windows
