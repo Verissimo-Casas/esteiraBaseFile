@@ -114,7 +114,7 @@ def detect_and_count_objects(frame):
     return frame
 
 # Capturar el video de la cámara
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 
 while True:
     # Leer el marco actual

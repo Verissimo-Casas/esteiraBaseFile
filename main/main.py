@@ -1,13 +1,9 @@
 import cv2
 
-CAMERA = 0
+CAMERA = 2
 cap = cv2.VideoCapture(CAMERA)
 
-def draw_contours(frame, contours, color):
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        if area > 1000:
-            cv2.drawContours(frame, [cnt], -1, color, 3)
+def find_contours(hsv_frame):
 
 while True:
     frame = cap.read()[1]

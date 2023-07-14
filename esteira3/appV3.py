@@ -7,42 +7,56 @@ import requests
 app = Flask(__name__)
 
 
-def dibujar(mask, color, line1, line2, frame):
-    contornos, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+def find_contours(mask):
+    return cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+
+def calculate_centroid(contour):
+    moments = cv2.moments(contour)
+    if moments["m00"] == 0:
+        moments["m00"] = 1
+    x = int(moments["m10"] / moments["m00"])
+    y = int(moments["m01"] / moments["m00"])
+    return x, y
+
+def draw_circle_and_text(frame, x, y, color):
+    cv2.circle(frame, (x, y), 7, color, -1)
+    cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), font, 0.75, color, 1, cv2.LINE_AA)
+
+def draw_contour(frame, contour, color):
+    nuevo_contorno = cv2.convexHull(contour)
+    cv2.drawContours(frame, [nuevo_contorno], 0, color, 1)
+
+def count_objects_between_lines(contours, line1, line2):
     count = 0
-    for c in contornos:
-        area = cv2.contourArea(c)
-        if area > 1000:
-            M = cv2.moments(c)
-            if M["m00"] == 0:
-                M["m00"] = 1
-            x = int(M["m10"] / M["m00"])
-            y = int(M['m01'] / M['m00'])
-            nuevoContorno = cv2.convexHull(c)
-            cv2.circle(frame, (x, y), 7, color, -1)
-            cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), font, 0.75, color, 1, cv2.LINE_AA)
-            cv2.drawContours(frame, [nuevoContorno], 0, color, 1)
-
-            # Check if object passes between the two lines
-            if line1 > y > line2:
-                count += 1
-
+    for c in contours:
+        x, y = calculate_centroid(c)
+        if line1 > y > line2:
+            count += 1
     return count
 
-azulBajo = np.array([193,78,21],np.uint8)
-azulAlto = np.array([171, 98, 21],np.uint8)
+def dibujar(mask, color, line1, line2, frame):
+    contours = find_contours(mask)
+    for c in contours:
+        area = cv2.contourArea(c)
+        if area > 1000:
+            x, y = calculate_centroid(c)
+            draw_circle_and_text(frame, x, y, color)
+            draw_contour(frame, c, color)
 
-amarilloBajo = np.array([20, 100, 20], np.uint8)
-amarilloAlto = np.array([32, 255, 255], np.uint8)
+    count = count_objects_between_lines(contours, line1, line2)
+    return count
 
-rojoBajo1 = np.array([0, 100, 20], np.uint8)
-rojoAlto1 = np.array([10, 255, 255], np.uint8)
+azulBajo = np.array([100,100,20],np.uint8)
+azulAlto = np.array([125,255,255],np.uint8)
 
-rojoBajo2 = np.array([175, 100, 20], np.uint8)
-rojoAlto2 = np.array([180, 255, 255], np.uint8)
+amarilloBajo = np.array([15,100,20],np.uint8)
+amarilloAlto = np.array([45,255,255],np.uint8)
 
-verdeBajo = np.array([36, 100, 20], np.uint8)
-verdeAlto = np.array([70, 255, 255], np.uint8)
+redBajo1 = np.array([0,100,20],np.uint8)
+redAlto1 = np.array([5,255,255],np.uint8)
+
+redBajo2 = np.array([175,100,20],np.uint8)
+redAlto2 = np.array([179,255,255],np.uint8)
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -62,7 +76,7 @@ def index():
 
 
 def generate_frames():
-    cam = 0            # Camera
+    cam = 2            # Camera
     width = 1080         # Ancho
     height = 680        # Alto
     fps = 60            # FPS 25/30/50/60
@@ -131,23 +145,13 @@ def generate_frames():
         frameHSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         maskAzul = cv2.inRange(frameHSV, azulBajo, azulAlto)
         maskAmarillo = cv2.inRange(frameHSV, amarilloBajo, amarilloAlto)
-        maskRojo1 = cv2.inRange(frameHSV, rojoBajo1, rojoAlto1)
-        maskRojo2 = cv2.inRange(frameHSV, rojoBajo2, rojoAlto2)
-        maskRojo = cv2.add(maskRojo1, maskRojo2)
-        maskVerde = cv2.inRange(frameHSV, verdeBajo, verdeAlto)
 
         count_azul += dibujar(maskAzul, (255, 0, 0), LINE1_Y, LINE2_Y, frame)
         count_amarillo += dibujar(maskAmarillo, (0, 255, 255), LINE1_Y, LINE2_Y, frame)
-        count_rojo += dibujar(maskRojo, (0, 0, 255), LINE1_Y, LINE2_Y, frame)
-        count_verde += dibujar(maskVerde, (0, 255, 0), LINE1_Y, LINE2_Y, frame)
-       
+
+
         totalCnts = count_azul + count_amarillo + count_rojo + count_verde
 
-        
-
-        # cv2.line(frame, (LINE1_Y, 0), (LINE1_Y, frame.shape[1]), (0, 0, 255), 1)
-        # cv2.line(frame, (LINE2_Y, 0), (LINE2_Y, frame.shape[1]), (0, 0, 255), 1)
-        # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
         cv2.line(frame, (0, LINE1_Y), (frame.shape[1], LINE1_Y), (0, 0, 255), 1)
         cv2.line(frame, (0, LINE2_Y), (frame.shape[1], LINE2_Y), (0, 0, 255), 1)

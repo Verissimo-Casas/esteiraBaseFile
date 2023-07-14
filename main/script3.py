@@ -14,20 +14,36 @@ def calculate_centroid(contour):
 
 def draw_circle_and_text(frame, x, y, color):
     cv2.circle(frame, (x, y), 7, color, -1)
-    cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), font, 0.75, color, 1, cv2.LINE_AA)
+    cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y + 10), font, 0.75, color, 1, cv2.LINE_AA)
 
 def draw_contour(frame, contour, color):
     nuevo_contorno = cv2.convexHull(contour)
     cv2.drawContours(frame, [nuevo_contorno], 0, color, 1)
 
 def dibujar(mask, color):
-    contornos = find_contours(mask)
+    contornos, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for c in contornos:
         area = cv2.contourArea(c)
         if area > 3000:
             x, y = calculate_centroid(c)
-            draw_circle_and_text(frame, x, y, color= color)
+            draw_circle_and_text(frame, x, y)
             draw_contour(frame, c, color)
+
+def dibujar(mask, color):
+    contornos = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+    for c in contornos:
+        area = cv2.contourArea(c)
+        if area > 3000:
+            moments = cv2.moments(c)
+            if moments["m00"] == 0:
+                moments["m00"] = 1
+            x = int(moments["m10"] / moments["m00"])
+            y = int(moments["m01"] / moments["m00"])
+            cv2.circle(frame, (x, y), 7, (0, 255, 0), -1)
+            cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), font, 0.75, (0, 255, 0), 1, cv2.LINE_AA)
+            nuevo_contorno = cv2.convexHull(c)
+            cv2.drawContours(frame, [nuevo_contorno], 0, color, 3)
+
 
 
 
@@ -45,42 +61,35 @@ redAlto2 = np.array([179,255,255],np.uint8)
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
+
 while True:
 
-  ret,frame = cap.read()
+    ret,frame = cap.read()
 
-  if ret == True:
+    if not ret:
+        break
+
     frameHSV = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+
     maskAzul = cv2.inRange(frameHSV,azulBajo,azulAlto)
     maskAmarillo = cv2.inRange(frameHSV,amarilloBajo,amarilloAlto)
     maskRed1 = cv2.inRange(frameHSV,redBajo1,redAlto1)
     maskRed2 = cv2.inRange(frameHSV,redBajo2,redAlto2)
+
     maskRed = cv2.add(maskRed1,maskRed2)
 
-    # Opencv 4
-    dibujar(maskAzul,(255,0,0))
-    dibujar(maskAmarillo,(0,255,255))
-    dibujar(maskRed,(0,0,255))
-
-    #Imagen Resumen
-    imgResumen = 255 * np.ones((210,100,3), dtype = np.uint8)
-    cv2.circle(imgResumen, (30,30), 15, (255,0,0), -1)
-    cv2.circle(imgResumen, (30,70), 15, (0,255,255), -1)
-    cv2.circle(imgResumen, (30,110), 15, (0,0,255), -1)
-
-    
-    cv2.putText(imgResumen,str(len(maskAzul)),(65,40), 1, 2,(0,0,0),1)
-    cv2.putText(imgResumen,str(len(maskAmarillo)),(65,80), 1, 2,(0,0,0),1)
-    cv2.putText(imgResumen,str(len(maskRed)),(65,120), 1, 2,(0,0,0),1)
-
-    totalCnts = len(maskAzul) + len(maskAmarillo) + len(maskRed)
-    cv2.putText(imgResumen,str(totalCnts),(55,200), 1, 2,(0,0,0),1)
-    cv2.imshow('Resumen', imgResumen)
-    
+    dibujar(maskAzul, (255, 0, 0))
+    dibujar(maskAmarillo, (0, 255, 255))
+    dibujar(maskRed, (0, 0, 255))
 
     cv2.imshow('frame',frame)
-    if cv2.waitKey(70) & 0xFF == ord('s'):
-      break
+    cv2.imshow('maskAzul',maskAzul)
+    cv2.imshow('maskAmarillo',maskAmarillo)
+    cv2.imshow('maskRed',maskRed)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
 cap.release()
 cv2.destroyAllWindows()

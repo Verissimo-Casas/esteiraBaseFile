@@ -1,34 +1,29 @@
 import cv2
+import numpy as np
 
-CAMERA = 0 # 0 = Camara integrada, 1 = Camara externa
+# Set the camera index and initialize the camera
+CAMERA_INDEX = 2
+cap = cv2.VideoCapture(CAMERA_INDEX)
 
-
-
-cap = cv2.VideoCapture(CAMERA)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 620)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-cap.set(cv2.CAP_PROP_FOCUS, 100)
-
+# Set the frame width and height to 1280 and 720 pixels, respectively
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 while True:
+    # Read a frame from the camera and convert it from BGR to HSV color space
     _, frame = cap.read()
-    hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+    # Extract the height and width of the frame and calculate the center coordinates
     height, width, _ = frame.shape
+    center_x = width // 2
+    center_y = height // 2
 
-    cx = int(width // 2)
-    cy = int(height // 2)
+    # Pick the pixel value at the center of the frame and extract the hue value
+    center_pixel = hsv_frame[center_y, center_x]
+    hue_value = center_pixel[0]
 
-    # Pick pixel value at center of frame
-    pixel_center = hsvImage[cy, cx]
-    hue_value = pixel_center[0]
-
-    # draw(x, y, color int = 5 name string = "Red")
-    # draw(x, y, color int = 25 name string = "Orange")
-    # draw(x, y, color int = 33 name string = "Yellow")
-
-    color = "Undefined"
-
+    # Determine the color of the object at the center of the frame based on the hue value
     if hue_value < 5:
         color = "Red"
     elif hue_value < 25:
@@ -38,26 +33,32 @@ while True:
     elif hue_value < 78:
         color = "Green"
     elif hue_value < 125:
-        color = "Cyan"
+        color = "center_yan"
     elif hue_value < 165:
         color = "Blue"
     else:
         color = "Red"
 
-    pixel_center_bgr = frame[cy, cx]
-    b, g, r = int(pixel_center_bgr[0]), int(pixel_center_bgr[1]), int(pixel_center_bgr[2])
+    # Extract the BGR color values of the pixel located at the center of the frame
+    center_pixel_bgr = frame[center_y, center_x]
 
-    # cv2.putText(frame, f"{color} ({b}, {g}, {r})", (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
-    cv2.putText(frame, color, (10, 70), 0, 1.5, (b, g, r), 2, cv2.LINE_AA)
+    # Unpack the BGR intensities of the center pixel into separate variables
+    blue_intensity, green_intensity, red_intensity = int(center_pixel_bgr[0]), int(center_pixel_bgr[1]), int(center_pixel_bgr[2])
 
-    rect_top_left = (cx - 180, cy - 500)
-    rect_bottom_right = (cx + 5, cy + 5)
-    cv2.rectangle(frame, rect_top_left, rect_bottom_right, (0, 0, 255), 3)
+    # Draw a text label indicating the color of the object at the center of the frame
+    cv2.putText(frame, color, (10, 70),0, 1.5, (blue_intensity, green_intensity, red_intensity), 2, cv2.LINE_AA)
 
+
+    # Draw a red circle at the center of the frame to highlight the location of the object
+    cv2.circle(frame, (center_x, center_y), 5, (0, 0, 255), 3)
+
+    # Display the processed frame in a window
     cv2.imshow('frame', frame)
 
+    # Exit the loop if the 'q' key is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    
+
+# Release the camera resources and close all windows
 cap.release()
 cv2.destroyAllWindows()
