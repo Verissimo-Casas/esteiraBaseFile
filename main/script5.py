@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time as t
 
 colors = {
     'yellow': [0, 255, 255], # yellow in BGR colorspace
@@ -28,20 +29,21 @@ def get_limits(color):
     return lowerLimit, upperLimit
 
 def process_contours(contours, color, frame):
-    for c in contours:
-        area = cv2.contourArea(c)
-        if area > 1500:
-            M = cv2.moments(c)
-            if M["m00"] == 0:
-                M["m00"] = 1
-            x = int(M["m10"] / M["m00"])
-            y = int(M['m01'] / M['m00'])
-            nuevoContorno = cv2.convexHull(c)
-            cv2.circle(frame, (x, y), 7, color, -1)
-            cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 1, cv2.LINE_AA)
-            cv2.drawContours(frame, [nuevoContorno], 0, color, 1)
+        for c in contours:
+            area = cv2.contourArea(c)
+            if area > 500:
+                M = cv2.moments(c)
+                if M['m00'] != 0:
+                    x = int(M['m10'] / M['m00'])
+                    y = int(M['m01'] / M['m00'])
+                    nuevoContorno = cv2.convexHull(c)
+                    cv2.circle(frame, (x, y), 7, color, -1)
+                    cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 1, cv2.LINE_AA)
+                    cv2.drawContours(frame, [nuevoContorno], 0, color, 1)
+                    return (x, y)
+                else:
+                    return (0, 0)
 
-            return x, y
 
 def get_color_name(X_coordinate: int, Y_coordinate: int, frame):
     '''Returns the color name of the pixel located at the specified coordinates'''
@@ -61,22 +63,37 @@ def get_color_name(X_coordinate: int, Y_coordinate: int, frame):
 
     return color
 
-def draw_line(x, y, frame):
-    cv2.line(frame, (x, y), (210, 210), (0, 0, 0), 2)
-
-    return x, y
 
 cap = cv2.VideoCapture(0)
+LINE_A = 410
+LINE_B = 411
+LINE_C = 412
+
 while True:
     ret, frame = cap.read()
 
     hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+    cv2.line(frame, (LINE_A, 0), (LINE_A, frame.shape[1]), (0, 0, 255), 6)
+    cv2.line(frame, (LINE_B, 0), (LINE_B, frame.shape[1]), (0, 0, 255), 6)
+    cv2.line(frame, (LINE_C, 0), (LINE_C, frame.shape[1]), (0, 0, 255), 6)
+
     for color_name, color_value in colors.items():
         lowerLimit, upperLimit = get_limits(color_value)
         color_mask = cv2.inRange(hsvImage, lowerLimit, upperLimit)
         contours, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        process_contours(contours, color_value, frame)
+
+        if len(contours) > 0:
+            result = process_contours(contours, color_value, frame)
+            if result is not None:
+                x, y = result
+                if x == LINE_A or x == LINE_B or x == LINE_C:
+                    print('Color: {}'.format(color_name))
+                    print('X: {}'.format(x))
+                    print('Y: {}'.format(y))
+                    # print data time
+                    print(t.strftime('%H:%M:%S'))
+                    print('------------------')
 
     cv2.imshow('frame', frame)
 
