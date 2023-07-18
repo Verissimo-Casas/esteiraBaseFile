@@ -41,6 +41,30 @@ def process_contours(contours, color, frame):
             cv2.putText(frame, '{},{}'.format(x, y), (x + 10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 1, cv2.LINE_AA)
             cv2.drawContours(frame, [nuevoContorno], 0, color, 1)
 
+            return x, y
+
+def get_color_name(X_coordinate: int, Y_coordinate: int, frame):
+    '''Returns the color name of the pixel located at the specified coordinates'''
+    center_pixel_bgr = frame[X_coordinate, Y_coordinate]
+    blue_intensity, green_intensity, red_intensity = int(center_pixel_bgr[0]), int(center_pixel_bgr[1]), int(center_pixel_bgr[2])
+
+    if red_intensity > 100 and green_intensity < 50 and blue_intensity < 50:
+        color = 'red'
+    elif red_intensity < 50 and green_intensity > 100 and blue_intensity < 50:
+        color = 'green'
+    elif red_intensity < 50 and green_intensity < 50 and blue_intensity > 100:
+        color = 'blue'
+    elif red_intensity > 100 and green_intensity > 100 and blue_intensity < 50:
+        color = 'yellow'
+    else:
+        color = 'unknown'
+
+    return color
+
+def draw_line(x, y, frame):
+    cv2.line(frame, (x, y), (210, 210), (0, 0, 0), 2)
+
+    return x, y
 
 cap = cv2.VideoCapture(0)
 while True:
