@@ -45,9 +45,12 @@ def process_contours(contours, color, frame):
                     return (0, 0)
 
 
-def get_color_name(X_coordinate: int, Y_coordinate: int, frame):
-    '''Returns the color name of the pixel located at the specified coordinates'''
-    center_pixel_bgr = frame[X_coordinate, Y_coordinate]
+def get_color_name(X_coordinate, Y_coordinate, frame):
+    height, width, _ = frame.shape
+    if X_coordinate >= width or Y_coordinate >= height:
+        return None
+    
+    center_pixel_bgr = frame[Y_coordinate, X_coordinate]
     blue_intensity, green_intensity, red_intensity = int(center_pixel_bgr[0]), int(center_pixel_bgr[1]), int(center_pixel_bgr[2])
 
     if red_intensity > 100 and green_intensity < 50 and blue_intensity < 50:
@@ -66,17 +69,14 @@ def get_color_name(X_coordinate: int, Y_coordinate: int, frame):
 
 cap = cv2.VideoCapture(0)
 LINE_A = 410
-LINE_B = 411
-LINE_C = 412
+
 
 while True:
     ret, frame = cap.read()
 
     hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    cv2.line(frame, (LINE_A, 0), (LINE_A, frame.shape[1]), (0, 0, 255), 6)
-    cv2.line(frame, (LINE_B, 0), (LINE_B, frame.shape[1]), (0, 0, 255), 6)
-    cv2.line(frame, (LINE_C, 0), (LINE_C, frame.shape[1]), (0, 0, 255), 6)
+    cv2.rectangle(frame, (LINE_A, 0), (frame.shape[1], frame.shape[0]), (0, 0, 255), 1)
 
     for color_name, color_value in colors.items():
         lowerLimit, upperLimit = get_limits(color_value)
@@ -87,13 +87,16 @@ while True:
             result = process_contours(contours, color_value, frame)
             if result is not None:
                 x, y = result
-                if x == LINE_A or x == LINE_B or x == LINE_C:
-                    print('Color: {}'.format(color_name))
-                    print('X: {}'.format(x))
-                    print('Y: {}'.format(y))
-                    # print data time
-                    print(t.strftime('%H:%M:%S'))
-                    print('------------------')
+                if x >= LINE_A:
+                    reult_color = get_color_name(x, y, frame)
+                    if reult_color != 'unknown':
+                        print(reult_color)
+                        print('Color: {}'.format(reult_color))
+                        print('X: {}'.format(x))
+                        print('Y: {}'.format(y))
+                        # print data time
+                        print(t.strftime('%H:%M:%S'))
+                        print('------------------')
 
     cv2.imshow('frame', frame)
 
